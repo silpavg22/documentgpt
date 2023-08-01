@@ -1,0 +1,6 @@
+PyPDF2
+langchain
+pinecone-client
+openai
+tiktoken
+boto3
