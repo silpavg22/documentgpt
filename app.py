@@ -31,13 +31,9 @@ def readfile_and_createembeddings(event, context):
     filename = filename.replace('(', '').replace(')','').replace('-', '').replace('_', '')
     print(filename)
     vectore_store = insert_or_fetch_embedding(filename, chunks)
-    q = 'How many states in the USA?'
-    answer = fetch_answer(vectore_store, q)
     end_time = time.time()
-    print(answer) 
     execution_time = end_time - start_time
     print(f"Execution time: {execution_time:.4f} seconds")
-    return answer
 
        
 def read_pdf(bucket, object_key):
@@ -90,15 +86,5 @@ def insert_or_fetch_embedding(index_name, chunks):
   return vector_store
   
   
-    
-def fetch_answer(vector_store, q):
-  llm = ChatOpenAI(model='gpt-3.5-turbo', temperature=1, openai_api_key=OPENAI_API_KEY)
-  retriever = vector_store.as_retriever(search_type='similarity', search_kwargs={'k':3})
-  chain = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
-  answer = chain.run(q)
-  return(answer)
 
-
-if __name__ == "__main__":
-    readfile_and_createembeddings("","")
 
