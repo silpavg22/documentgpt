@@ -51,7 +51,7 @@ def read_pdf(bucket, object_key):
 
 
 def convert_to_chunks(data):
-  text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1000,
+  text_splitter = RecursiveCharacterTextSplitter(chunk_size = 100,
                                                        chunk_overlap = 0, 
                                                        length_function =len)
   chunks = text_splitter.split_text(text = data)
@@ -80,7 +80,7 @@ def insert_or_fetch_embedding(index_name, chunks):
     print(f'Creating index {index_name} and embeddings ...', end='')
     pinecone.create_index(index_name, dimension=1536, metric = 'cosine')
     wait_on_index(index_name)
-    vector_store = Pinecone.from_texts(chunks, embeddings,  index_name)
+    vector_store = Pinecone.from_texts(chunks, embeddings,  index_name = index_name)
     print('Created new index')
 
   return vector_store
