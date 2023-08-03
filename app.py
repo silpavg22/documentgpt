@@ -16,7 +16,6 @@ PINECONE_ENV = os.environ.get('PINECONE_ENV')
 
 import time
 def readfile_and_createembeddings(event, context): 
-    start_time = time.time()
     records = event['Records']
     for record in records:
         bucket = record['s3']['bucket']['name']
@@ -26,19 +25,12 @@ def readfile_and_createembeddings(event, context):
     filename = filename.replace('(', '').replace(')','').replace('-', '').replace('_', '')
     print(filename)
     vectore_store = insert_or_fetch_embedding(filename, bucket, object_key)
-    q = 'what are Look-Ahead Terrain Alerting Annunciation?'
-    answer = fetch_answer(vectore_store, q)
-    end_time = time.time()
-    print(answer) 
-    execution_time = end_time - start_time
-    print(f"Execution time: {execution_time:.4f} seconds")
-    print(answer)
+   
     
 
        
 def read_pdf(bucket, object_key):
     client = boto3.client("s3")
-    start_time = time.time()
     response = client.get_object(Bucket=bucket, Key=object_key)
     pdf_content = response['Body'].read()
     pdf_document = fitz.open(stream=pdf_content)
@@ -47,22 +39,15 @@ def read_pdf(bucket, object_key):
         page = pdf_document[page_num]
         pdf_text += page.get_text()
     pdf_document.close()
-    end_time = time.time()
-    execution_time = end_time - start_time
-    print(f"read_pdf takes: {execution_time:.4f} seconds")
     return pdf_text
 
 
 
 def convert_to_chunks(data):
-  start_time = time.time()
   text_splitter = RecursiveCharacterTextSplitter(chunk_size = 100,
                                                        chunk_overlap = 0, 
                                                        length_function =len)
   chunks = text_splitter.split_text(text = data)
-  end_time = time.time()
-  execution_time = end_time - start_time
-  print(f"convert_to_chunks Execution time: {execution_time:.4f} seconds")
   return chunks
 
 def  wait_on_index(index):
@@ -100,16 +85,6 @@ def insert_or_fetch_embedding(index_name, bucket, object_key):
 
 
     
-    
-def fetch_answer(vector_store, q):
-  llm = ChatOpenAI(model='gpt-3.5-turbo', temperature=1, openai_api_key=OPENAI_API_KEY)
-  retriever = vector_store.as_retriever(search_type='similarity', search_kwargs={'k':3})
-  chain = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
-  answer = chain.run(q)
-  return(answer)
 
-  
-if __name__ == "__main__":
-    readfile_and_createembeddings("","")
   
 
